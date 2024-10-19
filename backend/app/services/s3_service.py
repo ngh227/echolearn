@@ -5,7 +5,8 @@ from botocore.exceptions import ClientError
 class S3Service:
     def __init__(self):
         self.s3 = boto3.client('s3')
-        self.bucket_name = 'your-bucket-name'
+        transcribe_client = boto3.client('transcribe')
+        self.bucket_name = 'echolearn-bucket'
 
     def upload_file(self, file_name, object_name=None):
         if object_name is None:
