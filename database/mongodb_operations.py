@@ -1,23 +1,21 @@
 # app/database/mongodb_operations.py
+
 import os
 from pymongo.mongo_client import MongoClient
 from dotenv import load_dotenv
-from datetime import datetime, timezone
+from datetime import datetime
 from pymongo.errors import ConnectionFailure
+from bson import ObjectId
 
-# Load environment variables from the .env file
 load_dotenv()
 
 class MongoDBOperations:
     def __init__(self):
         self.MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
-        if not self.MONGODB_CONNECTION_STRING:
-            raise ValueError("Missing MongoDB connection string in environment variables.")
-        
-        # Initialize MongoDB client
         self.client = MongoClient(self.MONGODB_CONNECTION_STRING)
         self.db = self.client['echolearn']
         self.documents = self.db['documents']
+        self.questions = self.db['questions']
         self.user_responses = self.db['user_responses']
         self.evaluations = self.db['evaluations']
 
@@ -36,7 +34,7 @@ class MongoDBOperations:
             "s3_url": s3_url,
             "user_id": user_id,
             "content": content,
-            "upload_date": datetime.now(timezone.utc)  # Use timezone-aware datetime
+            "upload_date": datetime.utcnow()
         }).inserted_id
 
     def get_all_documents(self):
@@ -45,21 +43,36 @@ class MongoDBOperations:
     def get_document_by_id(self, document_id):
         return self.documents.find_one({"_id": document_id})
 
+    def insert_question(self, document_id, text, answer):
+        return self.questions.insert_one({
+            "document_id": document_id,
+            "text": text,
+            "answer": answer,
+            "created_at": datetime.utcnow()
+        }).inserted_id
+
+    def get_questions_by_document_id(self, document_id):
+        return list(self.questions.find({"document_id": document_id}))
+
     def insert_user_response(self, document_id, question_id, user_id, response):
         return self.user_responses.insert_one({
             "document_id": document_id,
             "question_id": question_id,
             "user_id": user_id,
             "response": response,
-            "timestamp": datetime.now(timezone.utc)  # Use timezone-aware datetime
+            "timestamp": datetime.utcnow()
         }).inserted_id
 
-    def insert_evaluation(self, response_id, score):
+    def insert_evaluation(self, response_id, score, feedback=None):
         return self.evaluations.insert_one({
             "response_id": response_id,
             "score": score,
-            "timestamp": datetime.now(timezone.utc)  # Use timezone-aware datetime
+            "feedback": feedback,
+            "timestamp": datetime.utcnow()
         }).inserted_id
+
+    def get_evaluation_by_response_id(self, response_id):
+        return self.evaluations.find_one({"response_id": response_id})
 
 # Instantiate the MongoDBOperations class
 mongodb_ops = MongoDBOperations()
