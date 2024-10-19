@@ -2,14 +2,19 @@
 import os
 from pymongo.mongo_client import MongoClient
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 from pymongo.errors import ConnectionFailure
 
+# Load environment variables from the .env file
 load_dotenv()
 
 class MongoDBOperations:
     def __init__(self):
         self.MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
+        if not self.MONGODB_CONNECTION_STRING:
+            raise ValueError("Missing MongoDB connection string in environment variables.")
+        
+        # Initialize MongoDB client
         self.client = MongoClient(self.MONGODB_CONNECTION_STRING)
         self.db = self.client['echolearn']
         self.documents = self.db['documents']
@@ -31,7 +36,7 @@ class MongoDBOperations:
             "s3_url": s3_url,
             "user_id": user_id,
             "content": content,
-            "upload_date": datetime.utcnow()
+            "upload_date": datetime.now(timezone.utc)  # Use timezone-aware datetime
         }).inserted_id
 
     def get_all_documents(self):
@@ -46,14 +51,14 @@ class MongoDBOperations:
             "question_id": question_id,
             "user_id": user_id,
             "response": response,
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.now(timezone.utc)  # Use timezone-aware datetime
         }).inserted_id
 
     def insert_evaluation(self, response_id, score):
         return self.evaluations.insert_one({
             "response_id": response_id,
             "score": score,
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.now(timezone.utc)  # Use timezone-aware datetime
         }).inserted_id
 
 # Instantiate the MongoDBOperations class
