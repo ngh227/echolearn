@@ -1,0 +1,102 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Flask
+instance/
+.webassets-cache
+
+# FastAPI
+.env
+
+# MongoDB
+*.bson
+*.mongodb
+
+# AWS
+.aws/
+
+# JavaScript/Node.js (for potential frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# React (if used for frontend)
+.pnp/
+.pnp.js
+coverage/
+build/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+*.log
+*.sqlite
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Docker
+docker-compose.override.yml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Serverless
+.serverless/
+
+# Audio files (if storing locally during development)
+*.wav
+*.mp3
+*.ogg
+
+# PDF files (if storing locally during development)
+*.pdf
