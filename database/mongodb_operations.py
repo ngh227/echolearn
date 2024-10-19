@@ -1,40 +1,69 @@
-import os 
-from pymongo.mongo_client import MongoClient
+import os
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import datetime
 from pymongo.errors import ConnectionFailure
-import unittest
 
-load_dotenv()
+class MongoDBOperations:
+    def __init__(self):
+        load_dotenv()
+        self.MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
+        self.client = MongoClient(self.MONGODB_CONNECTION_STRING)
+        self.db = self.client['echolearn']
+        self.documents = self.db['documents']
+        self.user_responses = self.db['user_responses']
+        self.evaluations = self.db['evaluations']
 
-MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
-client = MongoClient(MONGODB_CONNECTION_STRING)
-db = client['echolearn']
-documents = db['documents']
-user_responses = db['user_responses']
-evaluations = db['evaluations']
+    def test_connection(self):
+        try:
+            self.client.admin.command('ping')
+            print("Pinged your deployment. You successfully connected to MongoDB!")
+            return True
+        except ConnectionFailure as e:
+            print(f"Connection to MongoDB failed: {e}")
+            return False
 
-# delete later:
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+    def insert_document(self, title, s3_url):
+        return self.documents.insert_one({
+            "title": title,
+            "s3_url": s3_url,
+            "upload_date": datetime.utcnow()
+        }).inserted_id
 
+    def get_all_documents(self):
+        return list(self.documents.find())
 
-def insert_document(title, s3_url):
-        return documents.insert_one({
-        "title": title,
-        "s3_url": s3_url,
-        "upload_date": datetime.datetime.utcnow()
-    }).inserted_id
+    def insert_user_response(self, user_id, document_id, response):
+        return self.user_responses.insert_one({
+            "user_id": user_id,
+            "document_id": document_id,
+            "response": response,
+            "timestamp": datetime.utcnow()
+        }).inserted_id
 
-def get_all_documents():
-    return list(documents.find())
+    def insert_evaluation(self, user_id, document_id, score):
+        return self.evaluations.insert_one({
+            "user_id": user_id,
+            "document_id": document_id,
+            "score": score,
+            "timestamp": datetime.utcnow()
+        }).inserted_id
 
-SAMPLE_TITLE = "Test Document"
-SAMPLE_S3_URL = "https://example.com/test-document"
+    def close_connection(self):
+        self.client.close()
 
+# # Usage example:
+# if __name__ == "__main__":
+#     mongo_ops = MongoDBOperations()
+#     if mongo_ops.test_connection():
+#         # Perform operations
+#         doc_id = mongo_ops.insert_document("Test Document", "https://example.com/test-document")
+#         print(f"Inserted document ID: {doc_id}")
+#         all_docs = mongo_ops.get_all_documents()
+#         print(f"Total documents: {len(all_docs)}")
+#     mongo_ops.close_connection()
+
+##### TEST #######
 class TestMongoDBConnection(unittest.TestCase):
 
     @classmethod
