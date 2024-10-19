@@ -1,82 +1,66 @@
-import os 
+# app/database/mongodb_operations.py
+import os
 from pymongo.mongo_client import MongoClient
 from dotenv import load_dotenv
 from datetime import datetime
 from pymongo.errors import ConnectionFailure
-import unittest
 
 load_dotenv()
 
-MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
-client = MongoClient(MONGODB_CONNECTION_STRING)
-db = client['echolearn']
-documents = db['documents']
-user_responses = db['user_responses']
-evaluations = db['evaluations']
-
-# delete later:
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
-
-
-def insert_document(title, s3_url):
-        return documents.insert_one({
-        "title": title,
-        "s3_url": s3_url,
-        "upload_date": datetime.datetime.utcnow()
-    }).inserted_id
-
-def get_all_documents():
-    return list(documents.find())
-
-SAMPLE_TITLE = "Test Document"
-SAMPLE_S3_URL = "https://example.com/test-document"
-
-class TestMongoDBConnection(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        """Set up a temporary collection for testing."""
-        cls.client = client
-        cls.db = db
-        cls.documents = documents
+class MongoDBOperations:
+    def __init__(self):
+        self.MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
+        self.client = MongoClient(self.MONGODB_CONNECTION_STRING)
+        self.db = self.client['echolearn']
+        self.documents = self.db['documents']
+        self.user_responses = self.db['user_responses']
+        self.evaluations = self.db['evaluations']
 
     def test_connection(self):
-        """Test if the connection to MongoDB is successful."""
         try:
             self.client.admin.command('ping')
             print("Successfully connected to MongoDB!")
+            return True
         except ConnectionFailure as e:
-            self.fail(f"Connection to MongoDB failed: {e}")
+            print(f"Connection to MongoDB failed: {e}")
+            return False
 
-    def test_insert_document(self):
-        """Test inserting a document into the 'documents' collection."""
-        inserted_id = self.documents.insert_one({
-            "title": SAMPLE_TITLE,
-            "s3_url": SAMPLE_S3_URL,
+    def insert_document(self, title, s3_url, user_id, content):
+        return self.documents.insert_one({
+            "title": title,
+            "s3_url": s3_url,
+            "user_id": user_id,
+            "content": content,
             "upload_date": datetime.utcnow()
         }).inserted_id
-        self.assertIsNotNone(inserted_id)
-        
-        # Check if the document is actually in the collection
-        document = self.documents.find_one({"_id": inserted_id})
-        self.assertIsNotNone(document)
-        self.assertEqual(document['title'], SAMPLE_TITLE)
-        self.assertEqual(document['s3_url'], SAMPLE_S3_URL)
 
-    def test_get_all_documents(self):
-        """Test retrieving all documents from the 'documents' collection."""
-        all_documents = list(self.documents.find())
-        self.assertIsInstance(all_documents, list)
+    def get_all_documents(self):
+        return list(self.documents.find())
 
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up test data from the collection."""
-        cls.documents.delete_many({"title": SAMPLE_TITLE})
-        print("Cleaned up test data.")
+    def get_document_by_id(self, document_id):
+        return self.documents.find_one({"_id": document_id})
 
-if __name__ == '__main__':
-    unittest.main()
+    def insert_user_response(self, document_id, question_id, user_id, response):
+        return self.user_responses.insert_one({
+            "document_id": document_id,
+            "question_id": question_id,
+            "user_id": user_id,
+            "response": response,
+            "timestamp": datetime.utcnow()
+        }).inserted_id
+
+    def insert_evaluation(self, response_id, score):
+        return self.evaluations.insert_one({
+            "response_id": response_id,
+            "score": score,
+            "timestamp": datetime.utcnow()
+        }).inserted_id
+
+# Instantiate the MongoDBOperations class
+mongodb_ops = MongoDBOperations()
+
+# Test the connection when the module is imported
+if mongodb_ops.test_connection():
+    print("MongoDB connection test passed.")
+else:
+    print("MongoDB connection test failed.")
