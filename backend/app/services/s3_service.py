@@ -1,12 +1,30 @@
+# app/services/s3_service.py
 import boto3
+from botocore.exceptions import ClientError
 
-S3_BUCKET = "your-bucket-name"
-s3 = boto3.client('s3')
+class S3Service:
+    def __init__(self):
+        self.s3 = boto3.client('s3')
+        self.bucket_name = 'your-bucket-name'
 
-def upload_file_to_s3(file, filename):
-    try:
-        s3.upload_fileobj(file, S3_BUCKET, filename)
-        return f"https://{S3_BUCKET}.s3.amazonaws.com/{filename}"
-    except Exception as e:
-        print(f"Error uploading to S3: {e}")
-        return None
+    def upload_file(self, file_name, object_name=None):
+        if object_name is None:
+            object_name = file_name
+
+        try:
+            self.s3.upload_file(file_name, self.bucket_name, object_name)
+        except ClientError as e:
+            print(e)
+            return False
+        return True
+
+    def generate_presigned_url(self, object_name, expiration=3600):
+        try:
+            response = self.s3.generate_presigned_url('get_object',
+                                                      Params={'Bucket': self.bucket_name,
+                                                              'Key': object_name},
+                                                      ExpiresIn=expiration)
+        except ClientError as e:
+            print(e)
+            return None
+        return response
