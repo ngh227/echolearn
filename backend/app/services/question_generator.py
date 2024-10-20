@@ -14,3 +14,4 @@ class QuestionGenerator:
         
         questions = [self.tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
         return questions
+    

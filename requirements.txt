@@ -16,3 +16,4 @@ requests==2.28.2
 
 # Environment variable management
 python-dotenv==1.0.0
+google-generativeai

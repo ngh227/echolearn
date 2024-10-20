@@ -34,15 +34,23 @@ class S3Service:
             self.logger.error(f"Error uploading file to S3: {e}")
             return False
 
-    def download_file(self, object_name, file_path):
+    def download_file(self, bucket_name, object_name, file_path):
         """Download a file from S3 bucket"""
         try:
-            self.s3.download_file(self.bucket_name, object_name, file_path)
-            self.logger.info(f"File {object_name} downloaded successfully to {file_path}")
+            self.s3.download_file(bucket_name, object_name, file_path)
+            self.logger.info(f"File {object_name} downloaded successfully from {bucket_name} to {file_path}")
             return True
         except ClientError as e:
             self.logger.error(f"Error downloading file from S3: {e}")
             return False
+    # def download_file(self, bucket_name, object_key, local_path):
+    #     try:
+    #         self.s3.download_file(bucket_name, object_key, local_path)
+    #         self.logger.info(f"File {object_key} downloaded successfully from {bucket_name} to {local_path}")
+    #         return True
+    #     except ClientError as e:
+    #         self.logger.error(f"Error downloading file from S3: {e}")
+    #         return False
 
     def generate_presigned_url(self, object_name, expiration=3600, http_method='put'):
         """Generate a presigned URL for uploading or downloading an object"""
