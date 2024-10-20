@@ -2,6 +2,11 @@
 
 This project aims to help students deeply understand material by encouraging them to explain it in their own words. It includes both a backend built with Python and a frontend built with React.
 
+## Demo
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/JCcmNNLoctY" frameborder="0" allowfullscreen></iframe>
+
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
