@@ -4,7 +4,9 @@ This project aims to help students deeply understand material by encouraging the
 
 ## Demo
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/JCcmNNLoctY" frameborder="0" allowfullscreen></iframe>
+
+[![Watch the Demo on YouTube](https://img.youtube.com/vi/JCcmNNLoctY/0.jpg)](https://youtu.be/JCcmNNLoctY)
+
 
 
 ## Table of Contents
