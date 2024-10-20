@@ -1,0 +1,94 @@
+/* Import Google Fonts in App.css */
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+/* Import Noto Serif font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap');
+
+
+/* Apply the font */
+.header-bar h1, .card-title, .section-title {
+  font-family: 'Patrick Hand', cursive;
+}
+
+
+/* App Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Character Image */
+.character-image {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 80px; /* Adjust size as needed */
+  opacity: 0.9; /* Make it slightly transparent if desired */
+  pointer-events: none; /* Prevent the image from interfering with clicks */
+}
+
+/* Footer and Header Styling */
+header {
+  background-color: #48a157; /* Header color */
+  padding: 16px;
+  text-align: center;
+}
+
+footer {
+  background-color: #d152a4; /* Footer color */
+  padding: 16px;
+  text-align: center;
+  color: white;
+}
+
+/* Apply Noto Serif as the default font for the entire app */
+body, .app-container {
+  font-family: 'Noto Serif', serif; /* Set Noto Serif as the default font */
+}
+
+/* Make sure any heading, button, or other element inherits the font */
+h1, h2, h3, h4, h5, h6, p, button, span, div, label, input {
+  font-family: 'Noto Serif', serif;
+}
+
+
+body {
+  font-family: 'Poppins', sans-serif; /* Playful and friendly font */
+  background-color: #f0f6fb; /* Light background color */
+}
+
+h1, h2, h3 {
+  color: #4c1c92; /* Primary purple color from the character */
+  font-weight: 700;
+}
+
+button {
+  background-color: #d152a4; /* Match with your theme colors */
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px; /* Rounded button style */
+  font-size: 16px;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+.container {
+  background-color: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.character-image {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 100px; /* Adjust size */
+  opacity: 0.8;
+}
+
