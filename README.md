@@ -9,10 +9,10 @@ Survey:
 <img width="759" alt="Screenshot 2024-10-20 at 1 21 23 PM" src="https://github.com/user-attachments/assets/865d3200-338e-4105-b523-aac238c582ba">
 
 - Find out more here: https://docs.google.com/presentation/d/1I_zl_7M6E_cbLyrWe55y9e2yRw9Wq3tM9C_itqg0ZAE/edit#slide=id.g30cc4a8b9eb_0_0
-- 
 
 
-## Demo
+
+## Click to see demo
 
 
 [![Watch the Demo on YouTube](https://img.youtube.com/vi/JCcmNNLoctY/0.jpg)](https://youtu.be/JCcmNNLoctY)
