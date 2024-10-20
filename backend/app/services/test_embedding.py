@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pymongo.errors import ConnectionFailure
 from bson import ObjectId
+import uuid
+from urllib.parse import urlparse
 import unittest
 
 class MongoDBOperations:
@@ -83,6 +85,20 @@ class MongoDBOperations:
     def get_embedding(self, document_id):
         return self.embeddings.find_one({"document_id": ObjectId(document_id)})
     
+    def get_document_content(self, doc_id):
+        """
+        Retrieve the content of a document by its MongoDB ObjectID.
+        """
+        try:
+            document = self.documents.find_one({"_id": ObjectId(doc_id)})
+            if document:
+                return document.get("content", "")  # Assuming the content is stored in a 'content' field
+            else:
+                return ""
+        except Exception as e:
+            print(f"Error retrieving document content: {e}")
+            return ""
+    
     def insert_chat_history(self, chat_entry):
         return self.chat_history.insert_one(chat_entry).inserted_id
 
@@ -103,7 +119,20 @@ class PDFProcessingWorkflow:
         # Configure Gemini AI
         genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
         self.model = genai.GenerativeModel("gemini-pro")
+        
+    def upload_file(self, file_path):
+        """
+        Upload a file to S3 and return the S3 URI.
+        """
+        file_name = os.path.basename(file_path)
+        object_name = f"uploads/{str(uuid.uuid4())}-{file_name}"
+        bucket_name = os.getenv("S3_BUCKET_NAME")
 
+        if self.s3_service.upload_file(file_path, object_name):
+            return f"s3://{bucket_name}/{object_name}"
+        else:
+            raise Exception("Failed to upload file to S3")
+        
     def process_pdf(self, s3_uri):
         # Parse the S3 URI
         parsed_uri = urlparse(s3_uri)
@@ -131,9 +160,28 @@ class PDFProcessingWorkflow:
         os.remove(local_path)
 
         return doc_id, questions
+    
+    def run_workflow(self, file_path):
+        try:
+            # Step 1: Upload file to S3
+            s3_uri = self.upload_file(file_path)
+            print(f"File uploaded successfully. S3 URI: {s3_uri}")
+
+            # Step 2: Process the PDF
+            doc_id, questions = self.process_pdf(s3_uri)
+            print(f"Document processed. ID: {doc_id}")
+            print("Generated questions:")
+            for i, question in enumerate(questions, 1):
+                print(f"{i}. {question}")
+
+            return doc_id, questions, s3_uri
+        except Exception as e:
+            print(f"An error occurred during the workflow: {e}")
+            return None, [], None
+
 
     def generate_questions(self, text, doc_id):
-        prompt = f"Based on the following text, generate 3 questions to test the reader's understanding:\n\n{text[:4000]}"
+        prompt = f"Based on the following text, generate 5 questions to test the reader's understanding:\n\n{text[:4000]}"
         response = self.model.generate_content(prompt)
         questions = response.text.strip().split('\n')
         
@@ -171,11 +219,52 @@ class PDFProcessingWorkflow:
     def get_chat_history(self, doc_id):
         return self.mongo_ops.get_chat_history(doc_id)
 
+    def upload_file_from_chat(self, file_content, file_name):
+        """
+        Upload a file to S3 from chat and return the S3 URI.
+        """
+        # Generate a unique object name
+        object_name = f"uploads/{str(uuid.uuid4())}-{file_name}"
+        bucket_name = os.getenv("S3_BUCKET_NAME")
+
+        # Save the file content temporarily
+        temp_path = f"/tmp/{file_name}"
+        with open(temp_path, 'wb') as f:
+            f.write(file_content)
+
+        # Upload to S3
+        if self.s3_service.upload_file(temp_path, object_name):
+            # Clean up the temporary file
+            os.remove(temp_path)
+            return f"s3://{bucket_name}/{object_name}"
+        else:
+            # Clean up the temporary file
+            os.remove(temp_path)
+            raise Exception("Failed to upload file to S3")
+        
+    def chat_based_workflow(self, file_content, file_name):
+        try:
+            # Step 1: Upload file to S3
+            s3_uri = self.upload_file_from_chat(file_content, file_name)
+            print(f"File uploaded successfully. S3 URI: {s3_uri}")
+
+            # Step 2: Process the PDF
+            doc_id, questions = self.process_pdf(s3_uri)
+            print(f"Document processed. ID: {doc_id}")
+            print("Generated questions:")
+            for i, question in enumerate(questions, 1):
+                print(f"{i}. {question}")
+
+            return doc_id, questions, s3_uri
+        except Exception as e:
+            print(f"An error occurred during the workflow: {e}")
+            return None, [], None
+
     def generate_more_questions(self, doc_id):
         chat_history = self.get_chat_history(doc_id)
         
         # Construct a prompt that includes previous questions and answers
-        prompt = "Based on the following chat history and document content, generate 3 new questions to further test the reader's understanding:\n\n"
+        prompt = "Based on the following chat history and document content, generate 5 new questions to further test the reader's understanding:\n\n"
         for entry in chat_history:
             prompt += f"{entry['role'].capitalize()}: {entry['content']}\n"
         
@@ -215,4 +304,4 @@ class PDFProcessingWorkflow:
 # Usage
 if __name__ == "__main__":
     workflow = PDFProcessingWorkflow()
-    workflow.run_workflow("s3://echolearn-bucket/USA-SMR-1-2023-AQUA.pdf")
+    workflow.run_workflow("s3://echolearn-bucket/ch16.pdf")

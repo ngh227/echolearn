@@ -92,7 +92,7 @@ class S3Service:
 ##### TESTING ######
 import os
 
-def test_s3_service_with_real_file(file_path="/Users/maeve/Documents/animal-data", file_name="USA-SMR-1-2023-AQUA.pdf"):
+def test_s3_service_with_real_file(file_path="/Users/maeve/Downloads", file_name="ch16.pdf"):
     # Initialize S3Service
     s3_service = S3Service()
 
