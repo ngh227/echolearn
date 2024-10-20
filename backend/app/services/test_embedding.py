@@ -24,6 +24,8 @@ class MongoDBOperations:
         self.documents = self.db['documents']
         self.user_responses = self.db['user_responses']
         self.evaluations = self.db['evaluations']
+        self.embeddings = self.db['embeddings']
+        self.chat_history = self.db['chat_history']
 
     def test_connection(self):
         try:
@@ -81,6 +83,12 @@ class MongoDBOperations:
     def get_embedding(self, document_id):
         return self.embeddings.find_one({"document_id": ObjectId(document_id)})
     
+    def insert_chat_history(self, chat_entry):
+        return self.chat_history.insert_one(chat_entry).inserted_id
+
+    def get_chat_history(self, doc_id):
+        return list(self.chat_history.find({"document_id": ObjectId(doc_id)}).sort("timestamp", 1))
+    
     def close_connection(self):
         self.client.close()
 
@@ -114,7 +122,7 @@ class PDFProcessingWorkflow:
 
         # Save text and embedding to MongoDB
         doc_id = self.mongo_ops.insert_document(s3_uri, pdf_text)
-        self.mongo_ops.insert_or_update_embedding(doc_id, embedding)
+        self.mongo_ops.insert_or_update_embedding(doc_id, embedding, pdf_text)
 
         # Generate questions using Gemini AI
         questions = self.generate_questions(pdf_text, doc_id)
