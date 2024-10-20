@@ -25,9 +25,6 @@ For this solution, you need the following prerequisites:
 
 1. **Clone the Repository**: Ensure you have the project's repository cloned locally.
 
-2. **Set Up Environment Variables**: Set the following environment variables in your terminal:
-   ```bash
-   export MONGODB_CONNECTION_STRING=your_mongo_connection_string
-   export AWS_ACCESS_KEY_ID=your_access_key_id
-   export AWS_SECRET_ACCESS_KEY=your_secret_access_key
-   export S3_BUCKET_NAME=your_bucket_name
+2. **Set Up Environment Variables**: Create a .env file contains information in env.example
+
+
