@@ -1,4 +1,3 @@
-# app/services/pdf_processor.py
 import PyPDF2
 import io
 
@@ -49,3 +48,37 @@ class PDFProcessor:
         except Exception as e:
             print(f"Error extracting text from page {page_number}: {str(e)}")
             return None
+
+    @staticmethod
+    def test_pdf_extraction(pdf_file_path):
+        """
+        Test the extraction of text from a PDF file and print the output.
+        
+        :param pdf_file_path: Path to the PDF file
+        """
+        try:
+            # Open the PDF file
+            with open(pdf_file_path, 'rb') as pdf_file:
+                print(f"Extracting text from {pdf_file_path}...")
+                
+                # Extract text from the entire PDF
+                extracted_text = PDFProcessor.extract_text(pdf_file)
+                if extracted_text:
+                    print("Extracted Text:")
+                    print(extracted_text)
+                else:
+                    print("No text extracted or an error occurred.")
+                    
+                # Get the number of pages
+                page_count = PDFProcessor.get_page_count(pdf_file)
+                if page_count is not None:
+                    print(f"Total Pages: {page_count}")
+                else:
+                    print("Could not get page count.")
+        except Exception as e:
+            print(f"Error opening PDF file: {str(e)}")
+
+# Example usage
+if __name__ == "__main__":
+    PDFProcessor.test_pdf_extraction('/Users/maeve/Documents/animal-data/USA-SMR-1-2023-AQUA.pdf')
+# PDFProcessor.test_pdf_extraction('path/to/your/USA-SMR-1-2023-AQUA.pdf')

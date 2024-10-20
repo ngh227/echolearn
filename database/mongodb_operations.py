@@ -3,10 +3,12 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import datetime
 from pymongo.errors import ConnectionFailure
+import unittest
+from bson import ObjectId
 
+load_dotenv()
 class MongoDBOperations:
     def __init__(self):
-        load_dotenv()
         self.MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
         self.client = MongoClient(self.MONGODB_CONNECTION_STRING)
         self.db = self.client['echolearn']
@@ -52,59 +54,43 @@ class MongoDBOperations:
     def close_connection(self):
         self.client.close()
 
-# # Usage example:
-# if __name__ == "__main__":
-#     mongo_ops = MongoDBOperations()
-#     if mongo_ops.test_connection():
-#         # Perform operations
-#         doc_id = mongo_ops.insert_document("Test Document", "https://example.com/test-document")
-#         print(f"Inserted document ID: {doc_id}")
-#         all_docs = mongo_ops.get_all_documents()
-#         print(f"Total documents: {len(all_docs)}")
-#     mongo_ops.close_connection()
-
-##### TEST #######
 class TestMongoDBConnection(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         """Set up a temporary collection for testing."""
-        cls.client = client
-        cls.db = db
-        cls.documents = documents
+        cls.mongo_ops = MongoDBOperations()
+        cls.client = cls.mongo_ops.client
+        cls.db = cls.mongo_ops.db
+        cls.documents = cls.mongo_ops.documents
+
+    SAMPLE_TITLE = "Test Document"
+    SAMPLE_S3_URL = "https://example.com/test-document"
 
     def test_connection(self):
         """Test if the connection to MongoDB is successful."""
-        try:
-            self.client.admin.command('ping')
-            print("Successfully connected to MongoDB!")
-        except ConnectionFailure as e:
-            self.fail(f"Connection to MongoDB failed: {e}")
+        self.assertTrue(self.mongo_ops.test_connection())
 
     def test_insert_document(self):
         """Test inserting a document into the 'documents' collection."""
-        inserted_id = self.documents.insert_one({
-            "title": SAMPLE_TITLE,
-            "s3_url": SAMPLE_S3_URL,
-            "upload_date": datetime.utcnow()
-        }).inserted_id
+        inserted_id = self.mongo_ops.insert_document(self.SAMPLE_TITLE, self.SAMPLE_S3_URL)
         self.assertIsNotNone(inserted_id)
         
         # Check if the document is actually in the collection
         document = self.documents.find_one({"_id": inserted_id})
         self.assertIsNotNone(document)
-        self.assertEqual(document['title'], SAMPLE_TITLE)
-        self.assertEqual(document['s3_url'], SAMPLE_S3_URL)
+        self.assertEqual(document['title'], self.SAMPLE_TITLE)
+        self.assertEqual(document['s3_url'], self.SAMPLE_S3_URL)
 
     def test_get_all_documents(self):
         """Test retrieving all documents from the 'documents' collection."""
-        all_documents = list(self.documents.find())
+        all_documents = self.mongo_ops.get_all_documents()
         self.assertIsInstance(all_documents, list)
 
     @classmethod
     def tearDownClass(cls):
         """Clean up test data from the collection."""
-        cls.documents.delete_many({"title": SAMPLE_TITLE})
+        cls.documents.delete_many({"title": cls.SAMPLE_TITLE})
+        cls.mongo_ops.close_connection()
         print("Cleaned up test data.")
 
 if __name__ == '__main__':
