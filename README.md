@@ -123,9 +123,7 @@ The following commands can be run within the frontend directory:
 - `npm run build`: Builds the app for production in the build folder.
 - `npm run eject`: Ejects the configuration files to give full control.
 
-For more information, see the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-## Learn More
+## References
 
 - [Python Documentation](https://docs.python.org/)
 - [React Documentation](https://reactjs.org/)
@@ -135,4 +133,4 @@ For more information, see the [Create React App documentation](https://facebook.
 - [MongoDB Atlas Documentation](https://docs.atlas.mongodb.com/)
 - [Jina AI Documentation](https://docs.jina.ai/)
 
-For any additional information or support, please contact the project maintainers.
+
