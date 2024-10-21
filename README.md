@@ -1,4 +1,4 @@
-# Echolearn Projec: 
+# Echolearn Project: 
 Learn it. Explain it. Master it!
 
 
