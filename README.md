@@ -1,7 +1,7 @@
 # Echolearn Project: 
 Learn it. Explain it. Master it!
 
-
+Yeh, we build this project for fun just to understand how AWS works =)) BUTTT
 This project aims to help students deeply understand material by encouraging them to explain it in their own words. It includes both a backend built with Python and a frontend built with React.
 
 Survey:
